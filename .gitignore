@@ -147,3 +147,9 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# SSH keys - never upload
+/Test_Server
+/Test_Server.pub
+
+/Test_Server*
