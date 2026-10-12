@@ -1,3 +1,4 @@
+
 name: Deploy Node.js Application To EC2
 
 on:
@@ -16,12 +17,14 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.EC2_HOST }}
           username: root
           key: ${{ secrets.SSH_KEY }}
+          port: 22
           script: |
+            set -e
             cd /root/Express_Test_Server_Github_Actions
-            git pull
+            git pull origin main
             npm install
-             pm2 restart myapp || pm2 start server.js --name myapp
+            pm2 restart myapp || pm2 start index.js --name myapp
             pm2 save
