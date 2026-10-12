@@ -18,23 +18,31 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: root
+          username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           port: 22
           timeout: 30s
           command_timeout: 2m
           script: |
             set -e
+
             echo "STEP 1: SSH connected"
             whoami
-            echo "STEP 2: Checking directory"
-            cd /root/Express_Test_Server_Github_Actions
+
+            echo "STEP 2: Checking project directory"
+            cd /home/ubuntu/Express_Test_Server_Github_Actions
             pwd
+
             echo "STEP 3: Pulling latest code"
             timeout 60s git pull origin main
+
             echo "STEP 4: Installing dependencies"
             npm install --no-audit --no-fund
+
             echo "STEP 5: Restarting application"
             pm2 restart myapp || pm2 start index.js --name myapp
+
+            echo "STEP 6: Saving PM2 configuration"
             pm2 save
+
             echo "DEPLOYMENT COMPLETED"
