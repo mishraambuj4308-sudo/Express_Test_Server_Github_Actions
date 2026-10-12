@@ -1,19 +1,4 @@
 
-name: Deploy Node.js Application To EC2
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -21,10 +6,34 @@ jobs:
           username: root
           key: ${{ secrets.SSH_KEY }}
           port: 22
+          command_timeout: 2m
+          timeout: 30s
           script: |
             set -e
+
+            echo "STEP 1: SSH connected successfully"
+            whoami
+
+            echo "STEP 2: Checking project directory"
             cd /root/Express_Test_Server_Github_Actions
-            git pull origin main
-            npm install
+            pwd
+
+            echo "STEP 3: Checking Git status"
+            git status --short
+
+            echo "STEP 4: Pulling latest code"
+            timeout 60s git pull origin main
+
+            echo "STEP 5: Installing dependencies"
+            npm install --no-audit --no-fund
+
+            echo "STEP 6: Checking PM2"
+            pm2 --version
+
+            echo "STEP 7: Restarting application"
             pm2 restart myapp || pm2 start index.js --name myapp
+
+            echo "STEP 8: Saving PM2 configuration"
             pm2 save
+
+            echo "DEPLOYMENT SCRIPT COMPLETED"
